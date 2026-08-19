@@ -2,9 +2,9 @@
 # UsageBoardPlugin:
 # {
 #   "schemaVersion": 1,
-#   "name": "智谱",
-#   "name@zh-Hans": "智谱",
-#   "name@en": "Zhipu",
+#   "name": "智谱 CodePlan",
+#   "name@zh-Hans": "智谱 CodePlan",
+#   "name@en": "Z.AI CodePlan",
 #   "icon": "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/light/zhipu-color.png",
 #   "description": "查询智谱 / ZAI Coding Plan 用量和 token 统计",
 #   "description@zh-Hans": "查询智谱 / ZAI Coding Plan 用量和 token 统计",
@@ -12,8 +12,8 @@
 #   "parameters": [
 #     {
 #       "name": "API_KEY",
-#       "label": "Api Key",
-#       "label@zh-Hans": "Api Key",
+#       "label": "CodePlan API Key",
+#       "label@zh-Hans": "CodePlan API Key",
 #       "type": "secret",
 #       "required": true,
 #       "placeholder": "Coding Plan API Key"

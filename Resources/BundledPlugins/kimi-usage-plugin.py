@@ -2,18 +2,18 @@
 # UsageBoardPlugin:
 # {
 #   "schemaVersion": 1,
-#   "name": "Kimi",
-#   "name@zh-Hans": "Kimi",
-#   "name@en": "Kimi",
+#   "name": "Kimi CodePlan",
+#   "name@zh-Hans": "Kimi CodePlan",
+#   "name@en": "Kimi CodePlan",
 #   "icon": "https://raw.githubusercontent.com/lobehub/lobe-icons/refs/heads/master/packages/static-png/light/kimi.png",
-#   "description": "查询 Kimi Code 用量",
-#   "description@zh-Hans": "查询 Kimi Code 用量",
-#   "description@en": "Query Kimi Code usage",
+#   "description": "查询 Kimi CodePlan 用量和订阅额度",
+#   "description@zh-Hans": "查询 Kimi CodePlan 用量和订阅额度",
+#   "description@en": "Query Kimi CodePlan usage and subscription quota",
 #   "parameters": [
 #     {
 #       "name": "API_KEY",
-#       "label": "Api Key",
-#       "label@zh-Hans": "Api Key",
+#       "label": "CodePlan API Key",
+#       "label@zh-Hans": "CodePlan API Key",
 #       "label@en": "API Key",
 #       "type": "secret",
 #       "required": true,

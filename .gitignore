@@ -1,11 +1,4 @@
-.DS_Store
-/.build
-/Packages
-xcuserdata/
-DerivedData/
-/.swiftpm
 .netrc
-/dist
 /.claude
 __pycache__/
 /Resources/CustomPlugins/
@@ -13,3 +6,9 @@ __pycache__/
 /AGENTS.md
 /TASKS.md
 /design/
+/windows/node_modules/
+/windows/dist/
+/windows/vendor/python/
+/windows/.cache/
+/windows/work/
+/work/

@@ -66,6 +66,7 @@ import os
 import sys
 import glob
 import subprocess
+import base64
 import urllib.error
 from datetime import datetime, timezone, timedelta
 from urllib import request as urllib_request
@@ -141,7 +142,94 @@ def _translate(lang):
 
 # ─── OAuth ────────────────────────────────────────────────────────────────────
 
+CLAUDE_CREDENTIAL_SERVICE = "Claude Code-credentials"
+CLAUDE_CREDENTIAL_NAME = "claude-code-user"
+
+
+def _read_windows_credential(name):
+    """Read one Bun.secrets value used by the official Claude CLI."""
+    if os.name != "nt":
+        return None
+    try:
+        import ctypes
+        from ctypes import wintypes
+
+        class FILETIME(ctypes.Structure):
+            _fields_ = [("dwLowDateTime", wintypes.DWORD), ("dwHighDateTime", wintypes.DWORD)]
+
+        class CREDENTIAL(ctypes.Structure):
+            _fields_ = [
+                ("Flags", wintypes.DWORD),
+                ("Type", wintypes.DWORD),
+                ("TargetName", wintypes.LPWSTR),
+                ("Comment", wintypes.LPWSTR),
+                ("LastWritten", FILETIME),
+                ("CredentialBlobSize", wintypes.DWORD),
+                ("CredentialBlob", ctypes.POINTER(ctypes.c_ubyte)),
+                ("Persist", wintypes.DWORD),
+                ("AttributeCount", wintypes.DWORD),
+                ("Attributes", ctypes.c_void_p),
+                ("TargetAlias", wintypes.LPWSTR),
+                ("UserName", wintypes.LPWSTR),
+            ]
+
+        credential_ptr = ctypes.POINTER(CREDENTIAL)()
+        advapi32 = ctypes.WinDLL("Advapi32.dll")
+        advapi32.CredReadW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.POINTER(ctypes.POINTER(CREDENTIAL))]
+        advapi32.CredReadW.restype = wintypes.BOOL
+        advapi32.CredFree.argtypes = [ctypes.c_void_p]
+        target = f"{CLAUDE_CREDENTIAL_SERVICE}/{name}"
+        if not advapi32.CredReadW(target, 1, 0, ctypes.byref(credential_ptr)):
+            return None
+        try:
+            credential = credential_ptr.contents
+            raw = ctypes.string_at(credential.CredentialBlob, credential.CredentialBlobSize)
+            return raw.decode("utf-8")
+        finally:
+            advapi32.CredFree(credential_ptr)
+    except Exception:
+        return None
+
+
+def _read_windows_claude_credentials():
+    direct = _read_windows_credential(CLAUDE_CREDENTIAL_NAME)
+    if direct:
+        return direct
+
+    metadata = _read_windows_credential(f"{CLAUDE_CREDENTIAL_NAME}#m")
+    if not metadata:
+        return None
+    try:
+        chunk_info = json.loads(metadata)
+        count = int(chunk_info["n"])
+        encoded_length = int(chunk_info["l"])
+        if count < 1 or count > 256 or encoded_length < 1 or encoded_length > count * 2400:
+            return None
+        chunks = [_read_windows_credential(f"{CLAUDE_CREDENTIAL_NAME}#{index}") for index in range(count)]
+        if any(chunk is None for chunk in chunks):
+            return None
+        encoded = "".join(chunks)
+        if len(encoded) != encoded_length:
+            return None
+        return base64.b64decode(encoded, validate=True).decode("utf-8")
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+
 def load_oauth_token():
+    environment_token = os.environ.get("CLAUDE_CODE_OAUTH_TOKEN", "").strip()
+    if environment_token:
+        return environment_token
+
+    if os.name == "nt":
+        raw_credentials = _read_windows_claude_credentials()
+        if raw_credentials:
+            try:
+                token = json.loads(raw_credentials).get("claudeAiOauth", {}).get("accessToken")
+                if token:
+                    return token
+            except (TypeError, json.JSONDecodeError):
+                pass
+
     try:
         cmd = ["security", "find-generic-password", "-s", "Claude Code-credentials", "-w"]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)

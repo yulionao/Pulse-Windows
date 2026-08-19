@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pulse</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="titlebar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+      <span>Pulse</span>
+    </div>
+    <nav class="window-actions" aria-label="Window controls">
+      <button class="icon-button" id="refresh-all" title="刷新全部" aria-label="刷新全部"><i data-lucide="refresh-cw"></i></button>
+      <button class="icon-button" id="toggle-settings" title="设置" aria-label="设置"><i data-lucide="settings-2"></i></button>
+      <button class="icon-button close-button" id="hide-window" title="隐藏" aria-label="隐藏"><i data-lucide="x"></i></button>
+    </nav>
+  </header>
+  <main id="app" aria-live="polite"></main>
+  <div id="modal-root"></div>
+  <div id="toast" role="status"></div>
+  <script src="../../node_modules/lucide/dist/umd/lucide.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
