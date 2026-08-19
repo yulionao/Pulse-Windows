@@ -127,6 +127,33 @@ class TestFetchOauthUsageErrors(unittest.TestCase):
         self.assertEqual(code, plugin.NETWORK_ERROR)
 
 
+class TestWindowsCredentialStorage(unittest.TestCase):
+    def test_reads_direct_bun_secret(self):
+        payload = json.dumps({"claudeAiOauth": {"accessToken": "test-token"}})
+        with patch.object(plugin.os, "name", "nt"), patch.object(
+            plugin, "_read_windows_credential", side_effect=lambda name: payload if name == plugin.CLAUDE_CREDENTIAL_NAME else None
+        ), patch.dict(plugin.os.environ, {}, clear=True):
+            self.assertEqual(plugin.load_oauth_token(), "test-token")
+
+    def test_reads_chunked_bun_secret(self):
+        payload = json.dumps({"claudeAiOauth": {"accessToken": "chunk-token"}})
+        encoded = plugin.base64.b64encode(payload.encode()).decode()
+        split = len(encoded) // 2
+        values = {
+            f"{plugin.CLAUDE_CREDENTIAL_NAME}#m": json.dumps({"n": 2, "l": len(encoded)}),
+            f"{plugin.CLAUDE_CREDENTIAL_NAME}#0": encoded[:split],
+            f"{plugin.CLAUDE_CREDENTIAL_NAME}#1": encoded[split:],
+        }
+        with patch.object(plugin.os, "name", "nt"), patch.object(
+            plugin, "_read_windows_credential", side_effect=values.get
+        ), patch.dict(plugin.os.environ, {}, clear=True):
+            self.assertEqual(plugin.load_oauth_token(), "chunk-token")
+
+    def test_environment_token_has_priority(self):
+        with patch.dict(plugin.os.environ, {"CLAUDE_CODE_OAUTH_TOKEN": "environment-token"}, clear=True):
+            self.assertEqual(plugin.load_oauth_token(), "environment-token")
+
+
 class TestBuildItemsFromOauth(unittest.TestCase):
     """OAuth usage payload should produce UsageBoard items for five_hour and seven_day."""
 

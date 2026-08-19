@@ -1,0 +1,99 @@
+{
+  "name": "pulse-windows",
+  "version": "0.1.43",
+  "description": "Pulse usage dashboard for Windows",
+  "main": "src/main/main.js",
+  "author": "Mars and contributors",
+  "license": "MIT",
+  "dependencies": {
+    "lucide": "^0.468.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "python:prepare": "node scripts/prepare-python.js",
+    "dist": "node scripts/build-windows.js nsis portable",
+    "pack": "node scripts/build-windows.js dir"
+  },
+  "devDependencies": {
+    "@anthropic-ai/claude-code": "^2.1.235",
+    "@openai/codex": "0.148.0",
+    "electron": "39.8.10",
+    "electron-builder": "26.15.3",
+    "extract-zip": "2.0.1",
+    "png-to-ico": "2.1.8"
+  },
+  "build": {
+    "appId": "com.marsmay.usageboard",
+    "productName": "Pulse",
+    "copyright": "Copyright © 2026 Mars and contributors",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/lucide/dist/umd/lucide.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../Resources/BundledPlugins",
+        "to": "BundledPlugins",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../Resources/icon.png",
+        "to": "icon.png"
+      },
+      {
+        "from": "vendor/python",
+        "to": "python",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe",
+        "to": "codex/codex.exe"
+      },
+      {
+        "from": "node_modules/@openai/codex/package.json",
+        "to": "codex/package.json"
+      },
+      {
+        "from": "node_modules/@anthropic-ai/claude-code/bin/claude.exe",
+        "to": "claude/claude.exe"
+      },
+      {
+        "from": "node_modules/@anthropic-ai/claude-code/package.json",
+        "to": "claude/package.json"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "artifactName": "Pulse-Setup-${version}-${arch}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Pulse",
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052"
+    },
+    "portable": {
+      "artifactName": "Pulse-Portable-${version}-${arch}.${ext}"
+    }
+  }
+}
