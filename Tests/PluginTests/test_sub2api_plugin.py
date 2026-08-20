@@ -113,6 +113,22 @@ class TestSub2APIPlugin(unittest.TestCase):
         self.assertEqual(cards[2]["totalActualCost"], 2)
         self.assertEqual(cards[2]["todayActualCost"], 1)
 
+    def test_platform_module_filters_hide_empty_and_disabled_cards(self):
+        cards = [
+            {"id": "anthropic", "name": "Claude", "totalActualCost": 0, "todayActualCost": 0, "totalRequests": 0, "totalTokens": 0, "quotas": []},
+            {"id": "openai", "name": "OpenAI", "totalActualCost": 10, "todayActualCost": 2, "totalRequests": 3, "totalTokens": 4, "quotas": []},
+            {"id": "gemini", "name": "Gemini", "totalActualCost": 0, "todayActualCost": 0, "totalRequests": 0, "totalTokens": 0, "quotas": [{"id": "daily"}]},
+        ]
+
+        filtered = plugin.filter_platform_cards(cards, {})
+        self.assertEqual([card["id"] for card in filtered], ["openai", "gemini"])
+
+        filtered = plugin.filter_platform_cards(cards, {"DISPLAY_OPENAI": "false"})
+        self.assertEqual([card["id"] for card in filtered], ["gemini"])
+
+        filtered = plugin.filter_platform_cards(cards, {"DISPLAY_EMPTY_MODULES": "true", "DISPLAY_GEMINI": "false"})
+        self.assertEqual([card["id"] for card in filtered], ["anthropic", "openai"])
+
     def test_email_login_rejects_two_factor(self):
         with patch.object(plugin, "api_request", return_value={"requires_2fa": True}):
             with self.assertRaisesRegex(plugin.Sub2APIError, "2FA"):

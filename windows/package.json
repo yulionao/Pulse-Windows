@@ -1,6 +1,6 @@
 {
   "name": "pulse-windows",
-  "version": "0.1.44",
+  "version": "0.1.45",
   "description": "Pulse usage dashboard for Windows",
   "main": "src/main/main.js",
   "author": "Mars and contributors",

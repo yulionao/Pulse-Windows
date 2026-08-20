@@ -14,7 +14,7 @@ Pulse is a focused Windows tray dashboard built on the UsageBoard plugin protoco
 - Start at Windows sign-in
 - Chinese and English UI
 - Bundled Python runtime in release builds
-- Built-in SubAPI platform cards with automatically fetched spending, requests, tokens, and daily/weekly/monthly quotas (Sub2API-compatible)
+- Built-in SubAPI platform cards with automatic usage, manually selectable platform modules, and hidden empty modules by default (Sub2API-compatible)
 - Official Codex device sign-in from the Codex plugin settings
 - Bundled official Codex CLI 0.148.0 fallback when Codex is not installed system-wide
 - Official Claude sign-in with Windows Credential Manager support
