@@ -179,7 +179,7 @@ function pluginCard(plugin) {
   let body = '';
   if (snapshot.error) body += `<div class="error-box">${escapeHTML(snapshot.error)}</div>`;
   if (output?.platformCards?.length) body += `<div class="platform-usage-grid">${output.platformCards.map(platformUsageCard).join('')}</div>`;
-  if (output?.items?.length) body += output.items.map(usageRow).join('');
+  else if (output?.items?.length) body += output.items.map(usageRow).join('');
   if (!snapshot.error && !output?.items?.length && !output?.platformCards?.length && snapshot.state !== 'loading') body += `<div class="empty-card">${t('noData')}</div>`;
   if (snapshot.state === 'loading' && !output) body += `<div class="empty-card">${t('waiting')}</div>`;
   const chart = output?.chart;
