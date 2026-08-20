@@ -4,9 +4,9 @@ Pulse 是一款 Windows 托盘用量面板，用于集中查看 AI 编程订阅�
 
 ## 界面预览
 
-### 用量概览
+### 多平台用量概览
 
-![Pulse 用量概览](docs/images/pulse-overview.png)
+![Pulse 多平台用量概览，展示 Codex、智谱 CodePlan 和 Kimi CodePlan](docs/images/pulse-overview.png)
 
 ### 插件与展示模块设置
 
@@ -50,6 +50,14 @@ npm run dist
 ```
 
 输出为 Windows x64 安装版和便携版。详细信息见 [windows/README.md](windows/README.md)。
+
+## 项目来源与致谢
+
+Pulse for Windows 基于 [marsmay/UsageBoard](https://github.com/marsmay/UsageBoard) 开源项目进行 Windows 二次开发，延续了 UsageBoard 的插件协议、用量聚合方式和多数据源设计思路。在此感谢 UsageBoard 作者及所有贡献者提供的开源代码与项目基础。
+
+本项目在上游基础上完成了 Windows 桌面端适配、系统托盘与开机启动、内置 Python/Codex CLI/Claude CLI、Windows 官方登录流程、SubAPI 平台模块以及 Pulse 风格界面。界面视觉与交互灵感来自 Pulse 风格设计，并针对 Windows 10/11 的使用习惯进行了调整。
+
+本项目遵循上游 MIT 许可证，是社区维护的非官方 Windows 二次开发版本，不代表 UsageBoard 上游作者或相关平台提供方发布的官方客户端。
 
 ## 免责声明
 
