@@ -80,7 +80,8 @@ class TestSub2APIPlugin(unittest.TestCase):
             result = json.loads(output.getvalue())
 
         self.assertEqual(result["badge"], "$1872.11")
-        self.assertEqual(result["items"], [])
+        self.assertEqual(len(result["items"]), 3)
+        self.assertEqual(result["items"][0]["name"], "OpenAI · Day")
         self.assertNotIn("chart", result)
         card = result["platformCards"][0]
         self.assertEqual(card["name"], "OpenAI")

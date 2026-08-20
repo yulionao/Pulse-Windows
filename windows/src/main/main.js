@@ -12,6 +12,10 @@ app.setName('Pulse');
 app.disableHardwareAcceleration();
 nativeTheme.themeSource = process.argv.includes('--capture-dark') ? 'dark' : 'system';
 
+function windowBackgroundColor() {
+  return nativeTheme.shouldUseDarkColors ? '#171c1b' : '#f6f7f4';
+}
+
 const customUserData = process.argv.find((argument) => argument.startsWith('--usageboard-user-data='))?.split('=').slice(1).join('=');
 app.setPath('userData', customUserData
   ? path.resolve(customUserData)
@@ -175,8 +179,8 @@ function createWindow() {
     minHeight: 560,
     show: false,
     frame: false,
-    backgroundColor: '#00000000',
-    transparent: true,
+    backgroundColor: windowBackgroundColor(),
+    transparent: false,
     roundedCorners: true,
     hasShadow: true,
     icon: iconPath,
@@ -186,6 +190,9 @@ function createWindow() {
       nodeIntegration: false,
       sandbox: true
     }
+  });
+  nativeTheme.on('updated', () => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.setBackgroundColor(windowBackgroundColor());
   });
   mainWindow.loadFile(path.resolve(__dirname, '../renderer/index.html'));
   mainWindow.on('close', (event) => {

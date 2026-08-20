@@ -190,10 +190,22 @@ def build_platform_cards(stats: Any, quota_payload: Any, language: str) -> list[
 
 
 def output_success(cards: list[dict[str, Any]], balance: float) -> int:
+    legacy_items = []
+    for card in cards:
+        for quota in card.get("quotas", []):
+            legacy_items.append({
+                "id": f"{card['id']}-{quota['id']}",
+                "name": f"{card['name']} · {quota['label']}",
+                "used": quota["used"],
+                "limit": quota["limit"],
+                "displayStyle": "ratio",
+                "color": quota["color"],
+                "resetAt": quota.get("resetAt"),
+            })
     result = {
         "schemaVersion": 1,
         "updatedAt": utc_now_iso(),
-        "items": [],
+        "items": legacy_items,
         "platformCards": cards,
         "badge": f"${balance:.2f}",
         "badgeColor": "green" if balance > 0 else "gray",
