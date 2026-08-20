@@ -17,20 +17,6 @@
 #       "type": "secret",
 #       "required": true,
 #       "placeholder": "Coding Plan API Key"
-#     },
-#     {
-#       "name": "STAT_PERIOD",
-#       "label": "统计周期",
-#       "label@zh-Hans": "统计周期",
-#       "label@en": "Stats Period",
-#       "type": "choice",
-#       "required": true,
-#       "defaultValue": "7d",
-#       "options": [
-#         {"label": "7 天",  "label@zh-Hans": "7 天",  "label@en": "7 days",  "value": "7d"},
-#         {"label": "15 天", "label@zh-Hans": "15 天", "label@en": "15 days", "value": "15d"},
-#         {"label": "30 天", "label@zh-Hans": "30 天", "label@en": "30 days", "value": "30d"}
-#       ]
 #     }
 #   ]
 # }
@@ -68,6 +54,7 @@ MODEL_USAGE_ENDPOINT = "https://bigmodel.cn/api/monitor/usage/model-usage"
 CACHE_VERSION = 1
 CACHE_FILENAME_PREFIX = "glm-usage-chart-cache"
 DEFAULT_CACHE_DIR = "~/Library/Application Support/UsageBoard/plugin-caches"
+CHART_PERIOD = "30d"
 
 TRANSLATIONS = {
     "period_5h":       {"zh-Hans": "5小时",     "en": "5 hours"},
@@ -796,9 +783,6 @@ def chart_message(message: str, period: str, buckets: list[datetime], bucket_uni
 def main() -> int:
     params = parse_usageboard_params(sys.argv[1:])
     api_key = params.get("API_KEY")
-    period = params.get("STAT_PERIOD", "7d").lower()
-    if period not in ("7d", "15d", "30d"):
-        period = "7d"
     language = app_language(params)
     translate = make_translator(TRANSLATIONS)
 
@@ -826,12 +810,12 @@ def main() -> int:
     if not items:
         return failure(translate(language, "no_quota_items"))
 
-    _, _, buckets, bucket_unit = stat_range(period)
+    _, _, buckets, bucket_unit = stat_range(CHART_PERIOD)
     try:
         daily = maintain_chart_cache(api_key, language)
-        chart = build_chart_from_cache(daily, period, language)
+        chart = build_chart_from_cache(daily, CHART_PERIOD, language)
     except Exception:
-        chart = chart_message(translate(language, "stats_query_failed"), period, buckets, bucket_unit)
+        chart = chart_message(translate(language, "stats_query_failed"), CHART_PERIOD, buckets, bucket_unit)
     return success(items, badge=badge, chart=chart)
 
 
