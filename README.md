@@ -8,7 +8,7 @@ Pulse 是一款 Windows 托盘用量面板，用于集中查看 AI 编程订阅�
 - Codex：支持官方 Codex 设备登录、订阅用量与本地 token 统计。
 - 智谱 CodePlan、Kimi CodePlan、MiniMax Coding Plan。
 - OpenCodeGo Plan。
-- SubAPI（兼容 Sub2API 服务）：自动读取平台消费、请求、Token 与日/周/月额度，无需选择统计周期或填写参考上限。
+- SubAPI（兼容 Sub2API 服务）：自动读取平台消费、请求、Token 与日/周/月额度，可手动选择展示平台并默认隐藏空模块。
 - DeepSeek、Tavily。
 
 ## 功能

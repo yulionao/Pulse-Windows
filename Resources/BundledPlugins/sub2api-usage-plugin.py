@@ -12,7 +12,14 @@
 #     {"name":"BASE_URL","label":"平台地址","label@zh-Hans":"平台地址","label@en":"Server URL","type":"string","required":true,"defaultValue":"http://localhost:8080","placeholder":"https://sub2api.example.com"},
 #     {"name":"ACCESS_TOKEN","label":"访问令牌","label@zh-Hans":"访问令牌","label@en":"Access token","type":"secret","required":false,"placeholder":"JWT（推荐，留空则使用邮箱密码）","placeholder@en":"JWT (recommended; leave blank to use email/password)"},
 #     {"name":"EMAIL","label":"邮箱","label@zh-Hans":"邮箱","label@en":"Email","type":"string","required":false,"placeholder":"未填写令牌时使用"},
-#     {"name":"PASSWORD","label":"密码","label@zh-Hans":"密码","label@en":"Password","type":"secret","required":false,"placeholder":"未填写令牌时使用"}
+#     {"name":"PASSWORD","label":"密码","label@zh-Hans":"密码","label@en":"Password","type":"secret","required":false,"placeholder":"未填写令牌时使用"},
+#     {"name":"DISPLAY_EMPTY_MODULES","label":"显示空模块","label@zh-Hans":"显示空模块","label@en":"Show empty modules","type":"boolean","required":false,"defaultValue":"false"},
+#     {"name":"DISPLAY_ANTHROPIC","label":"显示 Claude","label@zh-Hans":"显示 Claude","label@en":"Show Claude","type":"boolean","required":false,"defaultValue":"true"},
+#     {"name":"DISPLAY_OPENAI","label":"显示 OpenAI","label@zh-Hans":"显示 OpenAI","label@en":"Show OpenAI","type":"boolean","required":false,"defaultValue":"true"},
+#     {"name":"DISPLAY_GEMINI","label":"显示 Gemini","label@zh-Hans":"显示 Gemini","label@en":"Show Gemini","type":"boolean","required":false,"defaultValue":"true"},
+#     {"name":"DISPLAY_ANTIGRAVITY","label":"显示 Antigravity","label@zh-Hans":"显示 Antigravity","label@en":"Show Antigravity","type":"boolean","required":false,"defaultValue":"true"},
+#     {"name":"DISPLAY_GROK","label":"显示 grok","label@zh-Hans":"显示 grok","label@en":"Show grok","type":"boolean","required":false,"defaultValue":"true"},
+#     {"name":"DISPLAY_OTHER","label":"显示其他平台","label@zh-Hans":"显示其他平台","label@en":"Show other platforms","type":"boolean","required":false,"defaultValue":"true"}
 #   ]
 # }
 # /UsageBoardPlugin
@@ -50,6 +57,14 @@ PLATFORM_LABELS = {
     "grok": "grok",
 }
 PLATFORM_ORDER = ("anthropic", "openai", "gemini", "antigravity", "grok")
+PLATFORM_DISPLAY_PARAMETERS = {
+    "anthropic": "DISPLAY_ANTHROPIC",
+    "openai": "DISPLAY_OPENAI",
+    "gemini": "DISPLAY_GEMINI",
+    "antigravity": "DISPLAY_ANTIGRAVITY",
+    "grok": "DISPLAY_GROK",
+    "other": "DISPLAY_OTHER",
+}
 
 
 class Sub2APIError(Exception):
@@ -189,6 +204,36 @@ def build_platform_cards(stats: Any, quota_payload: Any, language: str) -> list[
     return cards
 
 
+def boolean_parameter(params: dict[str, str], name: str, default: bool) -> bool:
+    raw = params.get(name)
+    if raw is None or not str(raw).strip():
+        return default
+    return str(raw).strip().lower() in ("1", "true", "yes", "on")
+
+
+def card_has_data(card: dict[str, Any]) -> bool:
+    return any((
+        numeric(card.get("totalActualCost")) > 0,
+        numeric(card.get("todayActualCost")) > 0,
+        numeric(card.get("totalRequests")) > 0,
+        numeric(card.get("totalTokens")) > 0,
+        bool(card.get("quotas")),
+    ))
+
+
+def filter_platform_cards(cards: list[dict[str, Any]], params: dict[str, str]) -> list[dict[str, Any]]:
+    show_empty = boolean_parameter(params, "DISPLAY_EMPTY_MODULES", False)
+    visible = []
+    for card in cards:
+        display_parameter = PLATFORM_DISPLAY_PARAMETERS.get(str(card.get("id") or ""))
+        if display_parameter and not boolean_parameter(params, display_parameter, True):
+            continue
+        if not show_empty and not card_has_data(card):
+            continue
+        visible.append(card)
+    return visible
+
+
 def output_success(cards: list[dict[str, Any]], balance: float) -> int:
     legacy_items = []
     for card in cards:
@@ -233,7 +278,8 @@ def main() -> int:
         return failure(translate(language, "api_failed", message=str(error)))
 
     balance = numeric(profile.get("balance")) if isinstance(profile, dict) else 0
-    return output_success(build_platform_cards(stats, quota_payload, language), balance)
+    cards = build_platform_cards(stats, quota_payload, language)
+    return output_success(filter_platform_cards(cards, params), balance)
 
 
 if __name__ == "__main__":
