@@ -24,6 +24,15 @@ def load_plugin():
 plugin = load_plugin()
 
 
+class TestConfiguration(unittest.TestCase):
+    def test_only_api_key_is_user_configurable(self):
+        source = PLUGIN_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('"name": "API_KEY"', source)
+        self.assertNotIn('"name": "STAT_PERIOD"', source)
+        self.assertEqual(plugin.CHART_PERIOD, "30d")
+
+
 class TestQuotaKind(unittest.TestCase):
     def test_current_value_shape_is_tool_usage(self):
         kind, label = plugin.quota_kind({"currentValue": 10, "usage": 100}, "en")

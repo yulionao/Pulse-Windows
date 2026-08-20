@@ -18,21 +18,6 @@
 #       "type": "secret",
 #       "required": true,
 #       "placeholder": "MiniMax API Key"
-#     },
-#     {
-#       "name": "PLAN",
-#       "label": "Subscription Plan",
-#       "label@zh-Hans": "订阅计划",
-#       "label@en": "Subscription Plan",
-#       "type": "choice",
-#       "required": false,
-#       "defaultValue": "plus",
-#       "options": [
-#         {"label": "None",  "label@zh-Hans": "无",    "label@en": "None",  "value": "none"},
-#         {"label": "Plus",  "label@zh-Hans": "Plus",  "label@en": "Plus",  "value": "plus"},
-#         {"label": "Max",   "label@zh-Hans": "Max",   "label@en": "Max",   "value": "max"},
-#         {"label": "Ultra", "label@zh-Hans": "Ultra", "label@en": "Ultra", "value": "ultra"}
-#       ]
 #     }
 #   ]
 # }
@@ -152,13 +137,6 @@ def build_items(payload: dict[str, Any], language: str, translate: Any) -> list[
     return output
 
 
-def plan_badge(params: dict[str, str]) -> str | None:
-    plan = params.get("PLAN", "plus").lower()
-    if plan == "none":
-        return None
-    return plan.capitalize()
-
-
 def main() -> int:
     params = parse_usageboard_params(sys.argv[1:])
     language = app_language(params)
@@ -203,7 +181,7 @@ def main() -> int:
 
     if not items:
         return failure(translate(language, "no_quota_items"))
-    return success(items, badge=plan_badge(params))
+    return success(items)
 
 
 if __name__ == "__main__":

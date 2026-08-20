@@ -109,6 +109,12 @@ def run_plugin_with_interpreter(interpreter: Path) -> dict:
 
 
 class TestMiniMaxInterpreterCompatibility(unittest.TestCase):
+    def test_only_api_key_is_user_configurable(self):
+        source = PLUGIN_PATH.read_text(encoding="utf-8")
+
+        self.assertIn('"name": "API_KEY"', source)
+        self.assertNotIn('"name": "PLAN"', source)
+
     def test_output_decodes_with_expected_interpreters(self):
         interpreters = list(available_interpreters())
         if not interpreters:
@@ -118,7 +124,7 @@ class TestMiniMaxInterpreterCompatibility(unittest.TestCase):
             with self.subTest(interpreter=str(interpreter)):
                 output = run_plugin_with_interpreter(interpreter)
                 self.assertEqual(output["schemaVersion"], 1)
-                self.assertEqual(output["badge"], "Plus")
+                self.assertNotIn("badge", output)
                 self.assertEqual(len(output["items"]), 4)
                 first = output["items"][0]
                 self.assertEqual(first["displayStyle"], "percent")
